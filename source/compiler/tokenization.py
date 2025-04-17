@@ -1,3 +1,19 @@
+import enum
+
+
+class TokenTypes(enum.Enum):
+    INTEGER = 0
+    DECIMAL = 1
+
+    STRING = 2
+    SYMBOL = 3
+
+    BRACKET = 4
+    OBJECT_BRACKET = 5
+
+    COLON = 6
+    SEMICOLON = 7
+    COMMA = 8
 
 
 class Tokenizer:
@@ -22,5 +38,3 @@ class Tokenizer:
             self._add_token(None, character)
 
         return self._tokens
-
-print(Tokenizer().tokenize("1 + 2 == 3"))
