@@ -2,7 +2,25 @@
 
 class Tokenizer:
     def __init__(self):
-        raise NotImplementedError()
+        self._source = None
+        self._source_index = None
+
+        self._tokens = None
+
+    def _add_token(self, token_type, token_value):
+        self._tokens.append((token_type, token_value))
 
     def tokenize(self, source_code):
-        raise NotImplementedError()
+        self._source = source_code
+        self._source_index = 0
+        self._tokens = []
+
+        while self._source_index < len(self._source):
+            character = self._source[self._source_index]
+            self._source_index += 1
+
+            self._add_token(None, character)
+
+        return self._tokens
+
+print(Tokenizer().tokenize("1 + 2 == 3"))
