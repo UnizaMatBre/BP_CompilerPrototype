@@ -1,4 +1,5 @@
 import enum
+from xml.dom.pulldom import CHARACTERS
 
 
 class TokenTypes(enum.Enum):
@@ -43,8 +44,38 @@ class Tokenizer:
 
         while self._source_index < len(self._source):
             character = self._source[self._source_index]
-            self._source_index += 1
 
-            self._add_token(None, character)
+            match character:
+                case ":":
+                    self._add_token(TokenTypes.COLON, character)
+
+                case ",":
+                    self._add_token(TokenTypes.COMMA, character)
+
+                case ";":
+                    if self._check_next_match((")", "]", "}")):
+                        self._source_index += 1
+                        bracket = self._source[self._source_index]
+
+                        self._add_token(TokenTypes.OBJECT_BRACKET, character + bracket)
+
+
+                    else:
+                        self._add_token(TokenTypes.SEMICOLON, character)
+
+                case "(" | "[" | "{":
+                    if self._check_next_match((";",)):
+                        self._source_index += 1
+                        semicolon = self._source[self._source_index]
+
+                        self._add_token(TokenTypes.OBJECT_BRACKET, character + semicolon)
+
+                    else:
+                        self._add_token(TokenTypes.BRACKET, character)
+                case _:
+                    # TODO: Implement custom error
+                    raise SyntaxError()
+
+            self._source_index += 1
 
         return self._tokens
