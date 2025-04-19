@@ -99,6 +99,20 @@ class Tokenizer:
                 case " " | "\t" | "\n" | "\r":
                     self._add_token(TokenTypes.WHITESPACE, character)
 
+
+                case x if x in "0123456789":
+                    token_number = x
+
+                    while self._check_next_match("0123456789"):
+                        token_number += self._get_char_and_advance()
+
+                    # TODO: implement handling of decimals
+                    self._add_token(
+                        TokenTypes.INTEGER,
+                        int(token_number)
+                    )
+
+
                 case _:
                     # TODO: Implement custom error
                     raise SyntaxError()
