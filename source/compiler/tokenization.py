@@ -43,7 +43,7 @@ class Tokenizer:
         self._tokens.append((token_type, token_value))
 
     def _check_next_match(self, desired_characters):
-        next_index = self._source_index + 1
+        next_index = self._source_index
 
         if next_index >= len(self._source):
             return False
@@ -151,8 +151,8 @@ class Tokenizer:
 
 
 
-                case _:
+                case unknown_char:
                     # TODO: Implement custom error
-                    raise SyntaxError()
+                    raise SyntaxError("Unexpected character '{}'".format(unknown_char))
 
         return self._tokens
