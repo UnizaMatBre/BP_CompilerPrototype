@@ -19,6 +19,8 @@ class TokenTypes(enum.Enum):
     WHITESPACE = 9
 
 
+OPERATOR_CHARACTERS = "".join(("+", "-", "*", "\\", "/", "%", "=", "!", "<", ">", "|", "&"))
+
 class Tokenizer:
     def __init__(self):
         self._source = None
@@ -111,6 +113,19 @@ class Tokenizer:
                         TokenTypes.INTEGER,
                         int(token_number)
                     )
+
+                # handle operator symbols
+                case x if x in OPERATOR_CHARACTERS:
+                    operator_text = x
+
+                    while self._check_next_match(OPERATOR_CHARACTERS):
+                        operator_text += self._get_char_and_advance()
+
+                    self._add_token(
+                        TokenTypes.SYMBOL,
+                        operator_text
+                    )
+
 
 
                 case _:
