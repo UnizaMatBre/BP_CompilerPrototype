@@ -37,13 +37,20 @@ class Tokenizer:
 
         return next_character in desired_characters
 
+    def _get_char_and_advance(self):
+        prev_index = self._source_index
+        self._source_index += 1
+
+        return self._source[prev_index]
+
+
     def tokenize(self, source_code):
         self._source = source_code
         self._source_index = 0
         self._tokens = []
 
         while self._source_index < len(self._source):
-            character = self._source[self._source_index]
+            character = self._get_char_and_advance()
 
             match character:
                 case ":":
@@ -54,8 +61,7 @@ class Tokenizer:
 
                 case ";":
                     if self._check_next_match((")", "]", "}")):
-                        self._source_index += 1
-                        bracket = self._source[self._source_index]
+                        bracket = self._get_char_and_advance()
 
                         self._add_token(TokenTypes.OBJECT_BRACKET, character + bracket)
 
@@ -65,8 +71,7 @@ class Tokenizer:
 
                 case "(" | "[" | "{":
                     if self._check_next_match((";",)):
-                        self._source_index += 1
-                        semicolon = self._source[self._source_index]
+                        semicolon = self._get_char_and_advance()
 
                         self._add_token(TokenTypes.OBJECT_BRACKET, character + semicolon)
 
@@ -75,7 +80,5 @@ class Tokenizer:
                 case _:
                     # TODO: Implement custom error
                     raise SyntaxError()
-
-            self._source_index += 1
 
         return self._tokens
