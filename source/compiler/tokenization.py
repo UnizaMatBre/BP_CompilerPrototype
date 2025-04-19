@@ -21,6 +21,17 @@ class TokenTypes(enum.Enum):
 
 OPERATOR_CHARACTERS = "".join(("+", "-", "*", "\\", "/", "%", "=", "!", "<", ">", "|", "&"))
 
+
+ASCII_CHARACTERS = "".join(
+    [chr(char) for char in range(ord("a"), ord("z"))]
+) + "".join(
+    [chr(char) for char in range(ord("A"), ord("Z"))]
+)
+
+ASCII_DIGITS = "0123456789"
+
+KEYWORD_CHARACTERS = ASCII_CHARACTERS + ASCII_DIGITS + "_"
+
 class Tokenizer:
     def __init__(self):
         self._source = None
@@ -124,6 +135,18 @@ class Tokenizer:
                     self._add_token(
                         TokenTypes.SYMBOL,
                         operator_text
+                    )
+
+                # handle keyword symbols
+                case x if x == "_" or x in ASCII_CHARACTERS:
+                    keyword_text = x
+
+                    while self._check_next_match(KEYWORD_CHARACTERS):
+                        keyword_text += self._get_char_and_advance()
+
+                    self._add_token(
+                        TokenTypes.SYMBOL,
+                        keyword_text
                     )
 
 
