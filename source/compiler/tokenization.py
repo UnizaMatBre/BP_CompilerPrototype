@@ -16,6 +16,8 @@ class TokenTypes(enum.Enum):
     SEMICOLON = 7
     COMMA = 8
 
+    WHITESPACE = 9
+
 
 class Tokenizer:
     def __init__(self):
@@ -93,6 +95,9 @@ class Tokenizer:
                         raise SyntaxError()
 
                     self._add_token(TokenTypes.STRING, token_string)
+
+                case " " | "\t" | "\n" | "\r":
+                    self._add_token(TokenTypes.WHITESPACE, character)
 
                 case _:
                     # TODO: Implement custom error
