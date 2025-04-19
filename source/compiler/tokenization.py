@@ -26,6 +26,16 @@ class Tokenizer:
     def _add_token(self, token_type, token_value):
         self._tokens.append((token_type, token_value))
 
+    def _check_next_match(self, desired_characters):
+        next_index = self._source_index + 1
+
+        if next_index >= len(self._source):
+            return False
+
+        next_character = self._source[next_index]
+
+        return next_character in desired_characters
+
     def tokenize(self, source_code):
         self._source = source_code
         self._source_index = 0
