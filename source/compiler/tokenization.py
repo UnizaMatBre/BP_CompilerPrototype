@@ -93,6 +93,9 @@ class Tokenizer:
                     else:
                         self._add_token(TokenTypes.BRACKET, character)
 
+                case ")" | "]" | "}":
+                    self._add_token(TokenTypes.BRACKET, character)
+
                 case '"':
                     token_string = ""
 
