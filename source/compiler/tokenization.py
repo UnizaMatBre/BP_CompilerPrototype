@@ -77,6 +77,23 @@ class Tokenizer:
 
                     else:
                         self._add_token(TokenTypes.BRACKET, character)
+
+                case '"':
+                    token_string = ""
+
+                    while self._source_index < len(self._source):
+                        next_character = self._get_char_and_advance()
+
+                        if next_character == '"':
+                            break
+
+                        token_string += next_character
+                    else:
+                        # ending '"' was not found
+                        raise SyntaxError()
+
+                    self._add_token(TokenTypes.STRING, token_string)
+
                 case _:
                     # TODO: Implement custom error
                     raise SyntaxError()
