@@ -42,15 +42,11 @@ class Tokenizer:
     def _add_token(self, token_type, token_value):
         self._tokens.append((token_type, token_value))
 
-    def _check_next_match(self, desired_characters):
-        next_index = self._source_index
-
-        if next_index >= len(self._source):
+    def _check_next_match(self, predicate):
+        if self._source_index >= len(self._source):
             return False
 
-        next_character = self._source[next_index]
-
-        return next_character in desired_characters
+        return predicate(self._source[self._source_index])
 
     def _get_char_and_advance(self):
         prev_index = self._source_index
@@ -75,7 +71,7 @@ class Tokenizer:
                     self._add_token(TokenTypes.COMMA, character)
 
                 case ";":
-                    if self._check_next_match((")", "]", "}")):
+                    if self._check_next_match(lambda char: char in (")", "]", "}")):
                         bracket = self._get_char_and_advance()
 
                         self._add_token(TokenTypes.OBJECT_BRACKET, character + bracket)
@@ -85,7 +81,7 @@ class Tokenizer:
                         self._add_token(TokenTypes.SEMICOLON, character)
 
                 case "(" | "[" | "{":
-                    if self._check_next_match((";",)):
+                    if self._check_next_match(lambda char: char == ";"):
                         semicolon = self._get_char_and_advance()
 
                         self._add_token(TokenTypes.OBJECT_BRACKET, character + semicolon)
@@ -119,7 +115,7 @@ class Tokenizer:
                 case x if x in "0123456789":
                     token_number = x
 
-                    while self._check_next_match("0123456789"):
+                    while self._check_next_match(lambda char: char in "0123456789"):
                         token_number += self._get_char_and_advance()
 
                     # TODO: implement handling of decimals
@@ -132,7 +128,7 @@ class Tokenizer:
                 case x if x in OPERATOR_CHARACTERS:
                     operator_text = x
 
-                    while self._check_next_match(OPERATOR_CHARACTERS):
+                    while self._check_next_match(lambda char: char in OPERATOR_CHARACTERS):
                         operator_text += self._get_char_and_advance()
 
                     self._add_token(
@@ -144,7 +140,7 @@ class Tokenizer:
                 case x if x == "_" or x in ASCII_CHARACTERS:
                     keyword_text = x
 
-                    while self._check_next_match(KEYWORD_CHARACTERS):
+                    while self._check_next_match(lambda char: char in KEYWORD_CHARACTERS):
                         keyword_text += self._get_char_and_advance()
 
                     self._add_token(
