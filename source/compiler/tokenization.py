@@ -124,7 +124,7 @@ class Tokenizer:
                         token_string += next_character
                     else:
                         # ending '"' was not found
-                        raise SyntaxError()
+                        self._raise_tokenizer_error(r'String enclosing quotation marks not found.')
 
                     self._add_token(TokenTypes.STRING, token_string)
 
@@ -171,7 +171,9 @@ class Tokenizer:
 
 
                 case unknown_char:
-                    # TODO: Implement custom error
-                    raise SyntaxError("Unexpected character '{}'".format(unknown_char))
+                    self._raise_tokenizer_error("Unexpected character '{}'".format(unknown_char))
 
         return self._tokens
+
+
+print(Tokenizer().tokenize('"ssasaddsa'))
