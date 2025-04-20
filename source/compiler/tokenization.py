@@ -63,7 +63,7 @@ class Tokenizer:
         # calculate location
         line = line_pos = 0
 
-        for local_index in range(self._source_index):
+        for local_index in range(self._source_index - 1):
             char = self._source[local_index]
 
             if char == "\n":
@@ -175,5 +175,3 @@ class Tokenizer:
 
         return self._tokens
 
-
-print(Tokenizer().tokenize('"ssasaddsa'))
