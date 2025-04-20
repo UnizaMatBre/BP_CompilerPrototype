@@ -1,3 +1,17 @@
+import enum
+
+
+class LiteralTypes(enum.Enum):
+    INTEGER_LITERAL = 0
+    DECIMAL_LITERAL = 1
+
+    STRING_LITERAL = 2
+    SYMBOL_LITERAL = 3
+
+class LiteralNode:
+    def __init__(self, lit_type, lit_value):
+        self._lit_type = lit_type
+        self._lit_value = lit_value
 
 
 
