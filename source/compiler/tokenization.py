@@ -45,7 +45,12 @@ class Tokenizer:
         self._tokens = None
 
     def _add_token(self, token_type, token_value):
-        self._tokens.append((token_type, token_value))
+        self._tokens.append((
+            token_type,
+            (0, 0), # TODO: Implement actual source position counting
+            token_value
+
+        ))
 
     def _check_next_match(self, predicate):
         if self._source_index >= len(self._source):
