@@ -29,5 +29,11 @@ class Parser:
         return self._tokens[prev_index]
 
 
+    def parse_expression(self):
+        pass
+
+    def parse_code(self):
+        pass
+
     def parse_any(self):
         pass
