@@ -9,14 +9,17 @@ class TokenTypes(enum.Enum):
     STRING = 2
     SYMBOL = 3
 
-    BRACKET = 4
-    OBJECT_BRACKET = 5
+    BRACKET_OPEN = 4
+    BRACKET_CLOSE = 5
 
-    COLON = 6
-    SEMICOLON = 7
-    COMMA = 8
+    OBJECT_BRACKET_OPEN = 6
+    OBJECT_BRACKET_CLOSE = 7
 
-    WHITESPACE = 9
+    COLON = 8
+    SEMICOLON = 9
+    COMMA = 10
+
+    WHITESPACE = 11
 
 
 OPERATOR_CHARACTERS = "".join(("+", "-", "*", "\\", "/", "%", "=", "!", "<", ">", "|", "&"))
@@ -99,7 +102,7 @@ class Tokenizer:
                     if self._check_next_match(lambda char: char in (")", "]", "}")):
                         bracket = self._get_char_and_advance()
 
-                        self._add_token(TokenTypes.OBJECT_BRACKET, character + bracket)
+                        self._add_token(TokenTypes.OBJECT_BRACKET_CLOSE, character + bracket)
 
 
                     else:
@@ -109,13 +112,13 @@ class Tokenizer:
                     if self._check_next_match(lambda char: char == ";"):
                         semicolon = self._get_char_and_advance()
 
-                        self._add_token(TokenTypes.OBJECT_BRACKET, character + semicolon)
+                        self._add_token(TokenTypes.OBJECT_BRACKET_OPEN, character + semicolon)
 
                     else:
-                        self._add_token(TokenTypes.BRACKET, character)
+                        self._add_token(TokenTypes.BRACKET_OPEN, character)
 
                 case ")" | "]" | "}":
-                    self._add_token(TokenTypes.BRACKET, character)
+                    self._add_token(TokenTypes.BRACKET_CLOSE, character)
 
                 case '"':
                     token_string = ""
