@@ -32,6 +32,11 @@ ASCII_DIGITS = "0123456789"
 
 KEYWORD_CHARACTERS = ASCII_CHARACTERS + ASCII_DIGITS + "_"
 
+
+class TokenizerError(Exception):
+    pass
+
+
 class Tokenizer:
     def __init__(self):
         self._source = None
@@ -54,6 +59,21 @@ class Tokenizer:
 
         return self._source[prev_index]
 
+    def _raise_tokenizer_error(self, message):
+        # calculate location
+        line = line_pos = 0
+
+        for local_index in range(self._source_index):
+            char = self._source[local_index]
+
+            if char == "\n":
+                line_pos = 0
+                line += 1
+                return
+
+            line_pos += 1
+
+        raise TokenizerError((line, line_pos), message)
 
     def tokenize(self, source_code):
         self._source = source_code
