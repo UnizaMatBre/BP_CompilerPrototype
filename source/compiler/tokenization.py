@@ -21,6 +21,8 @@ class TokenTypes(enum.Enum):
 
     WHITESPACE = 11
 
+    EOF = 12
+
 
 OPERATOR_CHARACTERS = "".join(("+", "-", "*", "\\", "/", "%", "=", "!", "<", ">", "|", "&"))
 
@@ -180,6 +182,9 @@ class Tokenizer:
 
                 case unknown_char:
                     self._raise_tokenizer_error("Unexpected character '{}'".format(unknown_char))
+
+
+        self._add_token(TokenTypes.EOF, "")
 
         return self._tokens
 
