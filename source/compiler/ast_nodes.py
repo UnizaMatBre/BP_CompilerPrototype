@@ -1,4 +1,4 @@
-from bytecodes import LiteralTags
+from bytecodes import LiteralTags, Opcodes
 import struct
 
 
@@ -44,6 +44,20 @@ class LiteralNode:
     def __init__(self, literal_value):
         self._literal_value = literal_value
 
+    def compile(self, code_context):
+        # turns literal into bytes
+        literal_bytes = self._literal_value.get_compiled()
+
+        # store literal and gets its index
+        literal_index = code_context.add_literal_bytes(literal_bytes)
+
+        # store instruction
+        code_context.add_instruction(
+            Opcodes.PUSH_LITERAL,
+            literal_index
+        )
+
+        return code_context
 
 
 class SimpleValueBox:
