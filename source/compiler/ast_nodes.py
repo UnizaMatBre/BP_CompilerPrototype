@@ -18,3 +18,17 @@ class LiteralNode:
     def __init__(self, literal_value):
         self._literal_value = literal_value
 
+
+
+class SimpleValueBox:
+    def __init__(self, value):
+        self._value = value
+
+class IntegerBox(SimpleValueBox):
+    pass
+
+class DecimalBox(SimpleValueBox):
+    pass
+
+class StringBox(SimpleValueBox):
+    pass
