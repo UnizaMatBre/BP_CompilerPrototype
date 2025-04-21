@@ -40,3 +40,6 @@ class ObjectBox:
     def __init__(self, slots, code):
         self._slots = slots
         self._code = code
+
+class NoneBox:
+    pass
