@@ -32,3 +32,11 @@ class DecimalBox(SimpleValueBox):
 
 class StringBox(SimpleValueBox):
     pass
+
+class ObjectBox:
+    """
+    Box storing object. Because its complexity, it cannot be handed by simple value box
+    """
+    def __init__(self, slots, code):
+        self._slots = slots
+        self._code = code
