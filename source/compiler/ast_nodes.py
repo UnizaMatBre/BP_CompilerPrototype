@@ -1,6 +1,31 @@
 from bytecodes import LiteralTags
 import struct
 
+
+class CodeContext:
+    """
+    Represents code object in bytecode form - with separate literals and bytecode
+    Used by nodes to compile themselves into it
+    """
+    def __init__(self):
+        self._literal_bytes = []
+        self._bytecode = []
+
+    def add_literal_bytes(self, literal_bytes):
+        index = len(self._literal_bytes)
+        self._literal_bytes.append(literal_bytes)
+
+        return index
+
+    def add_instruction(self, opcode, opcode_parameter):
+        self._bytecode.append(opcode)
+        self._bytecode.append(opcode_parameter)
+
+
+
+
+
+
 class SendNode:
     """
     Represents message send tree node
