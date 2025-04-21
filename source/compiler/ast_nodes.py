@@ -1,4 +1,5 @@
-
+from bytecodes import LiteralTags
+import struct
 
 class SendNode:
     """
@@ -25,13 +26,18 @@ class SimpleValueBox:
         self._value = value
 
 class IntegerBox(SimpleValueBox):
-    pass
+    def get_compiled(self):
+        return [LiteralTags.VM_SMALL_INTEGER] + list( self._value.to_bytes(8, byteorder="big", signed=True) )
 
-class DecimalBox(SimpleValueBox):
-    pass
 
 class StringBox(SimpleValueBox):
-    pass
+    def get_compiled(self):
+        my_bytes = [LiteralTags.VM_STRING]
+
+        my_bytes.extend(list(
+            len(self._value).to_bytes(8, byteorder="big", signed=True)
+        ))
+
 
 class ObjectBox:
     """
@@ -42,4 +48,5 @@ class ObjectBox:
         self._code = code
 
 class NoneBox:
-    pass
+    def get_compiled(self):
+        return [LiteralTags.VM_NONE]
