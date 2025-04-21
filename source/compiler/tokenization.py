@@ -7,21 +7,22 @@ class TokenTypes(enum.Enum):
     DECIMAL = 1
 
     STRING = 2
-    SYMBOL = 3
+    KEYWORD_SYMBOL = 3
+    OPERATOR_SYMBOL = 4
 
-    BRACKET_OPEN = 4
-    BRACKET_CLOSE = 5
+    BRACKET_OPEN = 5
+    BRACKET_CLOSE = 6
 
-    OBJECT_BRACKET_OPEN = 6
-    OBJECT_BRACKET_CLOSE = 7
+    OBJECT_BRACKET_OPEN = 7
+    OBJECT_BRACKET_CLOSE = 8
 
-    COLON = 8
-    SEMICOLON = 9
-    COMMA = 10
+    COLON = 9
+    SEMICOLON = 10
+    COMMA = 11
 
-    WHITESPACE = 11
+    WHITESPACE = 12
 
-    EOF = 12
+    EOF = 13
 
 
 OPERATOR_CHARACTERS = "".join(("+", "-", "*", "\\", "/", "%", "=", "!", "<", ">", "|", "&"))
@@ -162,7 +163,7 @@ class Tokenizer:
                         operator_text += self._get_char_and_advance()
 
                     self._add_token(
-                        TokenTypes.SYMBOL,
+                        TokenTypes.OPERATOR_SYMBOL,
                         operator_text
                     )
 
@@ -174,7 +175,7 @@ class Tokenizer:
                         keyword_text += self._get_char_and_advance()
 
                     self._add_token(
-                        TokenTypes.SYMBOL,
+                        TokenTypes.KEYWORD_SYMBOL,
                         keyword_text
                     )
 
