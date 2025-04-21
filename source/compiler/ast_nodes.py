@@ -11,3 +11,10 @@ class SendNode:
 
 
 
+class LiteralNode:
+    """
+    Represents literal that appears in code (and thus needs to be stored in list of literals)
+    """
+    def __init__(self, literal_value):
+        self._literal_value = literal_value
+
