@@ -21,6 +21,9 @@ class Parser:
         self._tokens_index = 0
 
 
+    def _peek_token(self):
+        return self._tokens[self._tokens_index]
+
     def _pull_token(self):
         """Returns token and moved index forward"""
         prev_index = self._tokens_index
