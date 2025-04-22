@@ -1,6 +1,9 @@
 from bytecodes import LiteralTags, Opcodes
 import struct
 
+from source.compiler.bytecodes import SlotKindTags
+
+
 def translate_integer(value):
     return value.to_bytes(8, byteorder="big", signed=True)
 
@@ -203,8 +206,30 @@ class ObjectBox:
     def get_compiled(self):
         object_bytes = [LiteralTags.VM_OBJECT]
 
-        # handle slots - there is 0 for now, because slots are not implemented yet
-        object_bytes.extend(translate_integer(0))
+        # handle slots
+        object_bytes.extend(
+            translate_integer(self._slots)
+        )
+
+        for slot in self._slots:
+            slot_name, slot_kind, slot_content = slot
+
+            slot_kind_bytes = 0x00000000
+
+            if "parent" in slot_kind:
+                slot_kind_bytes = slot_kind_bytes | SlotKindTags.PARENT_SLOT_TAG
+            if "parameter" in slot_kind:
+                slot_kind_bytes = slot_kind_bytes | SlotKindTags.PARAMETER_SLOT_TAG
+
+            object_bytes.append(slot_kind)
+
+            object_bytes.extend(
+                slot_name.get_compiled()
+            )
+
+            object_bytes.extend(
+                slot_content.get_compiled()
+            )
 
         # handle code
         if self._code is None:
