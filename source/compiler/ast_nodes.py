@@ -192,6 +192,22 @@ class ObjectBox:
         self._slots = slots
         self._code = code
 
+    def get_compiled(self):
+        object_bytes = [LiteralTags.VM_OBJECT]
+
+        # handle slots - there is 0 for now, because slots are not implemented yet
+        object_bytes.extend(translate_integer(0))
+
+        # handle code
+        if self._code is None:
+            object_bytes.append(LiteralTags.VM_NONE)
+        else:
+            object_bytes.extend(
+                self._code.get_compiled()
+            )
+
+        return object_bytes
+
 class NoneBox:
     def get_compiled(self):
         return [LiteralTags.VM_NONE]
