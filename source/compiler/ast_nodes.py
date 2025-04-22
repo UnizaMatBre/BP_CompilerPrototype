@@ -128,6 +128,23 @@ class UnfinishedSymbolBox(SimpleValueBox):
 
         return symbol_bytes
 
+class CodeBox(SimpleValueBox):
+    def get_compiled(self):
+        new_code_context = CodeContext()
+
+        *rest, tail = self._value
+
+        for node in rest:
+            node.compile(new_code_context)
+            new_code_context.add_instruction(Opcodes.PULL, 0x00)
+
+        tail.compile(new_code_context)
+
+        return new_code_context
+
+
+
+
 class ObjectBox:
     """
     Box storing object. Because its complexity, it cannot be handed by simple value box
