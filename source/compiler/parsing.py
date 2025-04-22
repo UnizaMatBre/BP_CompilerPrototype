@@ -1,5 +1,8 @@
 import enum
 
+from source.compiler.ast_nodes import CodeBox
+from source.compiler.tokenization import TokenTypes, Tokenizer
+
 
 class LiteralTypes(enum.Enum):
     INTEGER_LITERAL = 0
@@ -30,6 +33,21 @@ class Parser:
         self._tokens_index += 1
 
         return self._tokens[prev_index]
+
+
+    def parse_root_code(self):
+        expression_list = []
+
+        token_type, _, _ = self._peek_token()
+
+        while token_type != TokenTypes.EOF:
+            expression_list.append(
+                self.parse_expression()
+            )
+
+            token_type, _, _ = self._peek_token()
+
+        return CodeBox(expression_list)
 
 
     def parse_expression(self):
