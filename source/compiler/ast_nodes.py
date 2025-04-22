@@ -43,7 +43,20 @@ class SendNode:
         for parameter in self._parameters:
             parameter.compile(code_context)
 
-        raise NotImplementedError()
+        # get arity
+        arity = len(self._parameters)
+
+        # compile symbol box
+        selector_bytes = self._selector.get_compiled_with(arity)
+        selector_index = code_context.add_literal_bytes(selector_bytes)
+
+        # add send instruction
+        code_context.add_instruction(
+            Opcodes.SEND,
+            selector_index
+        )
+
+        return code_context
 
 
 class LiteralNode:
