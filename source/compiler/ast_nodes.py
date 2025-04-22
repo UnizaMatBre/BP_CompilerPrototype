@@ -153,19 +153,7 @@ class StringBox(SimpleValueBox):
 
 class UnfinishedSymbolBox(SimpleValueBox):
     def get_compiled_with(self, symbol_arity):
-        symbol_bytes = [LiteralTags.VM_SYMBOL]
-
-        symbol_bytes.extend(
-            translate_integer(symbol_arity)
-        )
-        symbol_bytes.extend(
-            translate_integer(len(self._value))
-        )
-        symbol_bytes.extend(
-            (ord(character) for character in self._value)
-        )
-
-        return symbol_bytes
+        return CompleteSymbolBox(symbol_arity, self._value).get_compiled()
 
 class CompleteSymbolBox:
     def __init__(self, arity, characters):
