@@ -30,6 +30,32 @@ class CodeContext:
         self._bytecode.append(opcode)
         self._bytecode.append(opcode_parameter)
 
+    def get_compiled(self):
+        code_bytes = [LiteralTags.VM_CODE]
+
+        # add stack usage
+        code_bytes.extend(
+            translate_integer(self._stack_usage)
+        )
+
+        # add literals
+        code_bytes.append(LiteralTags.VM_OBJECT_ARRAY)
+        code_bytes.extend(
+            translate_integer(len(self._literal_bytes))
+        )
+        for one_literal_bytes in self._literal_bytes:
+            code_bytes.extend(one_literal_bytes)
+
+        # add bytecode
+        code_bytes.append(LiteralTags.VM_BYTE_ARRAY)
+        code_bytes.extend(
+            translate_integer(len(self._bytecode))
+        )
+        code_bytes.extend(self._bytecode)
+
+        return code_bytes
+
+
 
 
 
