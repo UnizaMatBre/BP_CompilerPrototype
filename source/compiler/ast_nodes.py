@@ -92,6 +92,22 @@ class StringBox(SimpleValueBox):
 
         return my_bytes
 
+class UnfinishedSymbolBox(SimpleValueBox):
+    def get_compiled_with(self, symbol_arity):
+        symbol_bytes = [LiteralTags.VM_SYMBOL]
+
+        symbol_bytes.extend(
+            symbol_arity.to_bytes(8, byteorder="big", signed=True)
+        )
+        symbol_bytes.extend(
+            len(self._value).to_bytes(8, byteorder="big", signed=True)
+        )
+        symbol_bytes.extend(
+            (ord(character) for character in self._value)
+        )
+
+        return symbol_bytes
+
 class ObjectBox:
     """
     Box storing object. Because its complexity, it cannot be handed by simple value box
