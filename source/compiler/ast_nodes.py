@@ -65,6 +65,19 @@ class SendNode:
 
         return code_context
 
+class ExplicitReturnNode:
+    """
+    Represents explicit return from method
+    """
+    def __init__(self, return_node):
+        self._return_node = return_node
+
+    def compile(self, code_context):
+        self._return_node.compile(code_context)
+
+        code_context.add_instruction(Opcodes.RETURN_EXPLICIT, 0x00)
+
+        return code_context
 
 class LiteralNode:
     """
