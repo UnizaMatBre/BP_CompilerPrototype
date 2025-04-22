@@ -35,6 +35,15 @@ class SendNode:
         self._selector = selector
         self._parameters = parameters
 
+    def compile(self, code_context):
+        # compile receiver
+        self._receiver.compile(code_context)
+
+        # compile parameters
+        for parameter in self._parameters:
+            parameter.compile(code_context)
+
+        raise NotImplementedError()
 
 
 class LiteralNode:
