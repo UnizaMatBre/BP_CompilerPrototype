@@ -1,6 +1,8 @@
 from bytecodes import LiteralTags, Opcodes
 import struct
 
+def translate_integer(value):
+    return value.to_bytes(8, byteorder="big", signed=True)
 
 class CodeContext:
     """
@@ -108,7 +110,7 @@ class SimpleValueBox:
 
 class IntegerBox(SimpleValueBox):
     def get_compiled(self):
-        return [LiteralTags.VM_SMALL_INTEGER] + list( self._value.to_bytes(8, byteorder="big", signed=True) )
+        return [LiteralTags.VM_SMALL_INTEGER] + list( translate_integer(self._value) )
 
 
 class StringBox(SimpleValueBox):
@@ -117,9 +119,7 @@ class StringBox(SimpleValueBox):
 
         character_bytes = bytes(self._value.encode("utf-8"))
 
-        my_bytes.extend(list(
-            len(character_bytes).to_bytes(8, byteorder="big", signed=True)
-        ))
+        my_bytes.extend(translate_integer(len(self._value)))
 
         my_bytes.extend(list(character_bytes))
 
@@ -130,10 +130,10 @@ class UnfinishedSymbolBox(SimpleValueBox):
         symbol_bytes = [LiteralTags.VM_SYMBOL]
 
         symbol_bytes.extend(
-            symbol_arity.to_bytes(8, byteorder="big", signed=True)
+            translate_integer(symbol_arity)
         )
         symbol_bytes.extend(
-            len(self._value).to_bytes(8, byteorder="big", signed=True)
+            translate_integer(len(self._value))
         )
         symbol_bytes.extend(
             (ord(character) for character in self._value)
