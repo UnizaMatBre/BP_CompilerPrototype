@@ -73,10 +73,15 @@ class StringBox(SimpleValueBox):
     def get_compiled(self):
         my_bytes = [LiteralTags.VM_STRING]
 
+        character_bytes = bytes(self._value.encode("utf-8"))
+
         my_bytes.extend(list(
-            len(self._value).to_bytes(8, byteorder="big", signed=True)
+            len(character_bytes).to_bytes(8, byteorder="big", signed=True)
         ))
 
+        my_bytes.extend(list(character_bytes))
+
+        return my_bytes
 
 class ObjectBox:
     """
