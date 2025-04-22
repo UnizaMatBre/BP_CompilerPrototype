@@ -167,6 +167,26 @@ class UnfinishedSymbolBox(SimpleValueBox):
 
         return symbol_bytes
 
+class CompleteSymbolBox:
+    def __init__(self, arity, characters):
+        self._characters = characters
+        self._arity = arity
+
+    def get_compiled(self):
+        symbol_bytes = [LiteralTags.VM_SYMBOL]
+
+        symbol_bytes.extend(
+            translate_integer(self._arity)
+        )
+        symbol_bytes.extend(
+            translate_integer(len(self._characters))
+        )
+        symbol_bytes.extend(
+            (ord(character) for character in self._characters)
+        )
+
+        return symbol_bytes
+
 class CodeBox(SimpleValueBox):
     def get_compiled(self):
         new_code_context = CodeContext()
