@@ -8,6 +8,7 @@ class CodeContext:
     Used by nodes to compile themselves into it
     """
     def __init__(self):
+        self._stack_usage = 0
         self._literal_bytes = []
         self._bytecode = []
 
@@ -18,6 +19,12 @@ class CodeContext:
         return index
 
     def add_instruction(self, opcode, opcode_parameter):
+        if opcode in (Opcodes.PUSH_MYSELF, Opcodes.PUSH_LITERAL):
+            self._stack_usage += 1
+
+        if not (0 <= opcode_parameter <= 255):
+            raise SyntaxError()
+
         self._bytecode.append(opcode)
         self._bytecode.append(opcode_parameter)
 
