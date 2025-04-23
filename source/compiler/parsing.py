@@ -21,7 +21,7 @@ class Parser:
         """Checks if current token has type we want"""
         token_type, _, _ = self._peek_token()
 
-        return token_type in wanted_token_types
+        return token_type.value in (t.value for t in wanted_token_types)
 
 
     def _check_token_value(self, wanted_token_values):
@@ -85,31 +85,25 @@ class Parser:
         else:
             token_type, token_location, token_value = self._pull_token()
 
+            # TODO: This is extremely brain damaged approach, but i don' know how to solve it right now
+            if token_type.value == TokenTypes.INTEGER.value:
+                main_term = LiteralNode(
+                    IntegerBox(token_value)
+                )
 
-            match token_type:
-                # return integer literal box
-                case TokenTypes.INTEGER:
-                    main_term = LiteralNode(
-                        IntegerBox(token_value)
-                    )
+            elif token_type.value  == TokenTypes.STRING.value:
+                main_term = LiteralNode(
+                    StringBox(token_value)
+                )
 
-                # return string literal box
-                case TokenTypes.STRING:
-                    main_term = LiteralNode(
-                        StringBox(token_value)
-                    )
+            elif token_type.value  == TokenTypes.OBJECT_BRACKET_OPEN.value:
+                raise NotImplementedError()
 
-                # handle object
-                case TokenTypes.OBJECT_BRACKET_OPEN:
-                    raise NotImplementedError()
+            elif token_type.value  in (TokenTypes.KEYWORD_SYMBOL, TokenTypes.OPERATOR_SYMBOL):
+                raise NotImplementedError()
 
-                # handle send
-                case TokenTypes.KEYWORD_SYMBOL | TokenTypes.OPERATOR_SYMBOL:
-                    raise NotImplementedError()
-
-                # any other token type is not allowed here
-                case unknown_token:
-                    raise SyntaxError()
+            else:
+                raise SyntaxError()
 
         # handle possible sends
         self._consume_whitespaces()
@@ -122,7 +116,7 @@ class Parser:
             token_type, token_location, token_value = self._pull_token()
 
             # next token MUST BE a symbol of any kind
-            if not token_type in (TokenTypes.OPERATOR_SYMBOL, TokenTypes.KEYWORD_SYMBOL):
+            if not token_type.value in (TokenTypes.OPERATOR_SYMBOL.value, TokenTypes.KEYWORD_SYMBOL.value):
                 raise SyntaxError()
 
             selector = token_value
