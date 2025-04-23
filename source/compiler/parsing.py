@@ -77,7 +77,7 @@ class Parser:
 
         # handle parenthesis
         if self._check_token_value( ["("] ):
-            # consume opening
+            # consume opening bracket
             self._pull_token()
 
             # parse expression
