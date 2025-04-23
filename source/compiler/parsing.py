@@ -69,7 +69,27 @@ class Parser:
 
 
     def parse_expression(self):
-        pass
+        # handle parenthesis
+        main_term = None
+
+        if self._check_token_value( ["("] ):
+            # consume opening
+            self._pull_token()
+
+            # parse expression
+            main_term = self.parse_expression()
+
+            # check if there is closing bracket and if not, error
+            if not self._check_token_value( [")"] ):
+                raise SyntaxError()
+
+            # consume closing bracket
+            self._pull_token()
+        else:
+            raise NotImplementedError()
+
+
+        return main_term
 
     def parse_code(self):
         pass
