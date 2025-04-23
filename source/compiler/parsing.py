@@ -145,8 +145,25 @@ class Parser:
             self._consume_whitespaces()
 
 
+        while self._check_token_type( [TokenTypes.OPERATOR_SYMBOL] ):
+            # get selector
+            _, token_location, token_value = self._pull_token()
 
+            selector = UnfinishedSymbolBox(token_value)
 
+            # consume whitespaces
+            self._consume_whitespaces()
+
+            parameters = []
+
+            if not self._check_token_type( [TokenTypes.COMMA] ):
+                parameters = [ self.parse_expression() ]
+
+            main_term = SendNode(
+                receiver=main_term,
+                selector=selector,
+                parameters=parameters
+            )
 
         return main_term
 
