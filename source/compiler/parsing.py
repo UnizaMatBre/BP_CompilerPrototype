@@ -118,7 +118,7 @@ class Parser:
         # handle possible sends
         self._consume_whitespaces()
 
-        if self._check_token_type([TokenTypes.COLON]):
+        while self._check_token_type([TokenTypes.COLON]):
             # consume colon
             self._pull_token()
 
