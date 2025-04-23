@@ -1,6 +1,6 @@
 import enum
 
-from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox
+from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox, SendNode
 from source.compiler.tokenization import TokenTypes, Tokenizer
 
 
@@ -110,6 +110,39 @@ class Parser:
                 # any other token type is not allowed here
                 case unknown_token:
                     raise SyntaxError()
+
+        # handle possible sends
+        self._consume_whitespaces()
+
+        if self._check_token_type([TokenTypes.COLON]):
+            # consume colon
+            self._pull_token()
+
+
+            token_type, token_location, token_value = self._pull_token()
+
+            # next token MUST BE a symbol of any kind
+            if not token_type in (TokenTypes.OPERATOR_SYMBOL, TokenTypes.KEYWORD_SYMBOL):
+                raise SyntaxError()
+
+            selector = token_value
+
+            # parsing of parameters will be handled later
+            parameters = []
+
+
+            main_term = SendNode(
+                receiver=main_term,
+                selector=selector,
+                parameters=parameters
+            )
+
+            #consume any following whitespaces
+            self._consume_whitespaces()
+
+
+
+
 
         return main_term
 
