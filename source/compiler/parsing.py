@@ -1,7 +1,7 @@
 import enum
 
 from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox, SendNode, UnfinishedSymbolBox, \
-    MyselfNode
+    MyselfNode, NoneBox, CompleteSymbolBox, ObjectBox
 from source.compiler.tokenization import TokenTypes, Tokenizer
 
 
@@ -84,23 +84,12 @@ class Parser:
 
         # handle normal expression (without parenthesis)
         else:
-            token_type, token_location, token_value = self._pull_token()
+            token_type, token_location, token_value = self._peek_token()
+
 
             # TODO: This is extremely brain damaged approach, but i don' know how to solve it right now
-            if token_type.value == TokenTypes.INTEGER.value:
-                main_term = LiteralNode(
-                    IntegerBox(token_value)
-                )
-
-            elif token_type.value  == TokenTypes.STRING.value:
-                main_term = LiteralNode(
-                    StringBox(token_value)
-                )
-
-            elif token_type.value  == TokenTypes.OBJECT_BRACKET_OPEN.value:
-                raise NotImplementedError()
-
-            elif token_type.value  in (TokenTypes.KEYWORD_SYMBOL.value, TokenTypes.OPERATOR_SYMBOL.value):
+            if token_type.value in (TokenTypes.KEYWORD_SYMBOL.value, TokenTypes.OPERATOR_SYMBOL.value):
+                self._pull_token()
                 selector = UnfinishedSymbolBox(token_value)
                 parameters = self._parse_message_arguments()
 
@@ -109,11 +98,8 @@ class Parser:
                     selector=selector,
                     parameters=parameters
                 )
-
-
-
             else:
-                raise SyntaxError()
+                main_term = self._parse_literal()
 
         # handle possible sends
         self._consume_whitespaces()
@@ -164,6 +150,84 @@ class Parser:
             )
 
         return main_term
+
+    def _parse_literal(self):
+        token_type, token_position, token_value = self._pull_token()
+
+        # TODO: Fix this brain damage approach
+        if token_type.value == TokenTypes.INTEGER.value:
+            return IntegerBox(token_value)
+
+        if token_type.value == TokenTypes.STRING.value:
+            return StringBox(token_value)
+
+        if token_type.value == TokenTypes.OBJECT_BRACKET_OPEN.value:
+            slots = []
+            code = None
+
+            self._consume_whitespaces()
+            while not self._check_token_type( [TokenTypes.OBJECT_BRACKET_CLOSE, TokenTypes.OBJECT_BRACKET_CLOSE] ):
+
+
+                #take slot name
+                if not self._check_token_type([TokenTypes.OPERATOR_SYMBOL, TokenTypes.KEYWORD_SYMBOL]):
+                    raise SyntaxError()
+
+                _, _, slot_name = self._pull_token()
+
+                ## take arity
+                if not self._check_token_value(["("]):
+                    raise SyntaxError()
+                self._pull_token()
+
+                if not self._check_token_type([TokenTypes.INTEGER]):
+                    raise SyntaxError()
+                _, position, arity = self._pull_token()
+
+                if arity < 0:
+                    raise SyntaxError()
+
+                if not self._check_token_value([")"]):
+                    raise SyntaxError()
+                self._pull_token()
+
+                self._consume_whitespaces()
+
+                slot_content = NoneBox()
+
+                # if there is no comma, there is value to load
+                if not self._check_token_type([TokenTypes.COMMA]):
+                    if not self._check_token_value(["="]):
+                        raise SyntaxError()
+
+                    self._pull_token()
+                    self._consume_whitespaces()
+
+                    # read value (literal)
+                    slot_content = self._parse_literal()
+
+                    self._consume_whitespaces()
+                    if not self._check_token_type([TokenTypes.COMMA]):
+                        raise SyntaxError()
+
+                # consume comma
+                self._pull_token()
+
+                slots.append((
+                    CompleteSymbolBox(slot_name, arity),
+                    (), #TODO: Implement slot kind handling
+                    slot_content
+                ))
+
+                self._consume_whitespaces()
+
+            return ObjectBox(
+                slots=slots,
+                code=None
+            )
+
+        #unknown literal
+        raise SyntaxError()
 
     def _parse_message_arguments(self):
         arguments = []
