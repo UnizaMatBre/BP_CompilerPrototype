@@ -1,6 +1,6 @@
 import enum
 
-from source.compiler.ast_nodes import CodeBox
+from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox
 from source.compiler.tokenization import TokenTypes, Tokenizer
 
 
@@ -83,8 +83,33 @@ class Parser:
 
         # handle normal expression (without parenthesis)
         else:
-            raise NotImplementedError()
+            token_type, token_location, token_value = self._pull_token()
 
+
+            match token_type:
+                # return integer literal box
+                case TokenTypes.INTEGER:
+                    main_term = LiteralNode(
+                        IntegerBox(token_value)
+                    )
+
+                # return string literal box
+                case TokenTypes.STRING:
+                    main_term = LiteralNode(
+                        StringBox(token_value)
+                    )
+
+                # handle object
+                case TokenTypes.OBJECT_BRACKET_OPEN:
+                    raise NotImplementedError()
+
+                # handle send
+                case TokenTypes.KEYWORD_SYMBOL | TokenTypes.OPERATOR_SYMBOL:
+                    raise NotImplementedError()
+
+                # any other token type is not allowed here
+                case unknown_token:
+                    raise SyntaxError()
 
         return main_term
 
