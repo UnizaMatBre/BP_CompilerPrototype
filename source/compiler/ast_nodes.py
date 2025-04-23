@@ -137,6 +137,12 @@ class SimpleValueBox:
     def __init__(self, value):
         self._value = value
 
+    def __repr__(self):
+        return "{}({})".format(
+            type(self).__name__,
+            repr(self._value)
+        )
+
 class IntegerBox(SimpleValueBox):
     def get_compiled(self):
         return [LiteralTags.VM_SMALL_INTEGER] + list( translate_integer(self._value) )
