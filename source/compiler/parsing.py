@@ -131,8 +131,31 @@ class Parser:
 
             selector = UnfinishedSymbolBox(token_value)
 
-            # parsing of parameters will be handled later
             parameters = []
+
+            # parse parameters
+            if self._check_token_value(["("]):
+                self._pull_token()
+
+                while True:
+
+                    parameters.append(
+                        self.parse_expression()
+                    )
+
+                    if self._check_token_value([")"]):
+                        self._pull_token()
+                        break
+
+                    if self._check_token_type([TokenTypes.COMMA]):
+                        self._pull_token()
+                        continue
+
+                    raise SyntaxError()
+
+
+
+
 
 
             main_term = SendNode(
