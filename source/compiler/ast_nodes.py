@@ -132,6 +132,18 @@ class LiteralNode:
 
         return code_context
 
+class MyselfNode:
+    """
+    Represents reference to currently running method activation. Used in message sending
+    """
+    def compile(self, code_context):
+        # store instruction
+        code_context.add_instruction(
+            Opcodes.PUSH_MYSELF,
+            0x00
+        )
+
+        return code_context
 
 class SimpleValueBox:
     def __init__(self, value):
