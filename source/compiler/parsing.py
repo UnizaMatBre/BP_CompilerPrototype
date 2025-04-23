@@ -102,12 +102,12 @@ class Parser:
 
             elif token_type.value  in (TokenTypes.KEYWORD_SYMBOL.value, TokenTypes.OPERATOR_SYMBOL.value):
                 selector = UnfinishedSymbolBox(token_value)
-                parameters = []
+                parameters = self._parse_message_arguments()
 
                 main_term = SendNode(
                     receiver=MyselfNode(),
                     selector=selector,
-                    parameters=[]
+                    parameters=parameters
                 )
 
 
@@ -131,32 +131,7 @@ class Parser:
 
             selector = UnfinishedSymbolBox(token_value)
 
-            parameters = []
-
-            # parse parameters
-            if self._check_token_value(["("]):
-                self._pull_token()
-
-                while True:
-
-                    parameters.append(
-                        self.parse_expression()
-                    )
-
-                    if self._check_token_value([")"]):
-                        self._pull_token()
-                        break
-
-                    if self._check_token_type([TokenTypes.COMMA]):
-                        self._pull_token()
-                        continue
-
-                    raise SyntaxError()
-
-
-
-
-
+            parameters = self._parse_message_arguments()
 
             main_term = SendNode(
                 receiver=main_term,
@@ -189,6 +164,33 @@ class Parser:
             )
 
         return main_term
+
+    def _parse_message_arguments(self):
+        arguments = []
+
+        if not self._check_token_value(["("]):
+            return arguments
+
+        # consume opening bracket
+        self._pull_token()
+
+        while True:
+
+            arguments.append(
+                self.parse_expression()
+            )
+
+            if self._check_token_value([")"]):
+                self._pull_token()
+                break
+
+            if self._check_token_type([TokenTypes.COMMA]):
+                self._pull_token()
+                continue
+
+            raise SyntaxError()
+
+        return arguments
 
     def parse_code(self):
         pass
