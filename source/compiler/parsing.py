@@ -69,9 +69,13 @@ class Parser:
 
 
     def parse_expression(self):
-        # handle parenthesis
         main_term = None
 
+        # consume whitespaces before expression itself
+        self._consume_whitespaces()
+
+
+        # handle parenthesis
         if self._check_token_value( ["("] ):
             # consume opening
             self._pull_token()
@@ -79,12 +83,17 @@ class Parser:
             # parse expression
             main_term = self.parse_expression()
 
+            # consume whitespaces between expression and closing bracket
+            self._consume_whitespaces()
+
             # check if there is closing bracket and if not, error
             if not self._check_token_value( [")"] ):
                 raise SyntaxError()
 
             # consume closing bracket
             self._pull_token()
+
+        # handle normal expression (without parenthesis)
         else:
             raise NotImplementedError()
 
