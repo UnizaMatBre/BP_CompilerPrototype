@@ -15,7 +15,7 @@ class Parser:
     def _consume_whitespaces(self):
         """Jumps over all whitespace tokens in token list"""
 
-        while self._peek_token()[0] == TokenTypes.WHITESPACE:
+        while self._peek_token()[0].value == TokenTypes.WHITESPACE.value:
             self._pull_token()
 
     def _check_token_type(self, wanted_token_types):
