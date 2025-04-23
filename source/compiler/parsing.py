@@ -1,6 +1,6 @@
 import enum
 
-from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox, SendNode
+from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox, SendNode, UnfinishedSymbolBox
 from source.compiler.tokenization import TokenTypes, Tokenizer
 
 
@@ -119,7 +119,7 @@ class Parser:
             if not token_type.value in (TokenTypes.OPERATOR_SYMBOL.value, TokenTypes.KEYWORD_SYMBOL.value):
                 raise SyntaxError()
 
-            selector = token_value
+            selector = UnfinishedSymbolBox(token_value)
 
             # parsing of parameters will be handled later
             parameters = []
