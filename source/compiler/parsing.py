@@ -1,6 +1,7 @@
 import enum
 
-from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox, SendNode, UnfinishedSymbolBox
+from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBox, SendNode, UnfinishedSymbolBox, \
+    MyselfNode
 from source.compiler.tokenization import TokenTypes, Tokenizer
 
 
@@ -99,8 +100,17 @@ class Parser:
             elif token_type.value  == TokenTypes.OBJECT_BRACKET_OPEN.value:
                 raise NotImplementedError()
 
-            elif token_type.value  in (TokenTypes.KEYWORD_SYMBOL, TokenTypes.OPERATOR_SYMBOL):
-                raise NotImplementedError()
+            elif token_type.value  in (TokenTypes.KEYWORD_SYMBOL.value, TokenTypes.OPERATOR_SYMBOL.value):
+                selector = UnfinishedSymbolBox(token_value)
+                parameters = []
+
+                main_term = SendNode(
+                    receiver=MyselfNode(),
+                    selector=selector,
+                    parameters=[]
+                )
+
+
 
             else:
                 raise SyntaxError()
