@@ -29,6 +29,19 @@ class Parser:
         while self._peek_token()[0] == TokenTypes.WHITESPACE:
             self._pull_token()
 
+    def _check_token_type(self, wanted_token_types):
+        """Checks if current token has type we want"""
+        token_type, _, _ = self._peek_token()
+
+        return token_type in wanted_token_types
+
+
+    def _check_token_value(self, wanted_token_values):
+        """Checks if current token has value we want"""
+        _, _, token_value = self._peek_token()
+
+        return token_value in wanted_token_values
+
     def _peek_token(self):
         return self._tokens[self._tokens_index]
 
