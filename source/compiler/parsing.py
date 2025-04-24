@@ -166,7 +166,7 @@ class Parser:
             code = None
 
             self._consume_whitespaces()
-            while not self._check_token_type( [TokenTypes.OBJECT_BRACKET_CLOSE, TokenTypes.OBJECT_BRACKET_CLOSE] ):
+            while not self._check_token_type( [TokenTypes.OBJECT_BRACKET_CLOSE, TokenTypes.SEMICOLON] ):
 
 
                 #take slot name
@@ -221,9 +221,25 @@ class Parser:
 
                 self._consume_whitespaces()
 
+            if self._check_token_type([TokenTypes.SEMICOLON]):
+                self._pull_token()
+
+                code = []
+                while not self._check_token_type([TokenTypes.OBJECT_BRACKET_CLOSE]):
+                    code.append(self.parse_expression())
+
+                    # check and consume token
+                    if not self._check_token_type([TokenTypes.COMMA]):
+                        raise SyntaxError()
+                    self._pull_token()
+
+                    self._consume_whitespaces()
+
+                self._pull_token()
+
             return ObjectBox(
                 slots=slots,
-                code=None
+                code=code
             )
 
         #unknown literal
