@@ -171,82 +171,83 @@ class Parser:
             return StringBox(token_value)
 
         if token_type.value == TokenTypes.OBJECT_BRACKET_OPEN.value:
-            slots = []
-            code = None
-
-            self._consume_whitespaces()
-            while not self._check_token_type( [TokenTypes.OBJECT_BRACKET_CLOSE, TokenTypes.SEMICOLON] ):
-
-
-                #take slot name
-                if not self._check_token_type([TokenTypes.OPERATOR_SYMBOL, TokenTypes.KEYWORD_SYMBOL]):
-                    raise SyntaxError()
-
-                _, _, slot_name = self._pull_token()
-
-                ## take arity
-                if not self._check_consume_token_value(["("]):
-                    raise SyntaxError()
-
-                if not self._check_token_type([TokenTypes.INTEGER]):
-                    raise SyntaxError()
-                _, position, arity = self._pull_token()
-
-                if not self._check_consume_token_value([")"]):
-                    raise SyntaxError()
-
-                if arity < 0:
-                    raise SyntaxError()
-
-                self._consume_whitespaces()
-
-                slot_content = NoneBox()
-
-                # if there is no comma, there is value to load
-                if not self._check_token_type([TokenTypes.COMMA]):
-                    if not self._check_token_value(["="]):
-                        raise SyntaxError()
-
-                    self._pull_token()
-                    self._consume_whitespaces()
-
-                    # read value (literal)
-                    slot_content = self._parse_literal()
-
-                    self._consume_whitespaces()
-                    if not self._check_token_type([TokenTypes.COMMA]):
-                        raise SyntaxError()
-
-                # consume comma
-                self._pull_token()
-
-                slots.append((
-                    CompleteSymbolBox(slot_name, arity),
-                    (), #TODO: Implement slot kind handling
-                    slot_content
-                ))
-
-                self._consume_whitespaces()
-
-            if self._check_token_type([TokenTypes.SEMICOLON]):
-                self._pull_token()
-
-                code = []
-                while not self._check_consume_token_type([TokenTypes.OBJECT_BRACKET_CLOSE]):
-                    code.append(self.parse_expression())
-
-                    # check and consume token
-                    if not self._check_consume_token_type([TokenTypes.COMMA]):
-                        raise SyntaxError()
-                    self._consume_whitespaces()
-
-            return ObjectBox(
-                slots=slots,
-                code=code
-            )
+            return self._parse_object()
 
         #unknown literal
         raise SyntaxError()
+
+    def _parse_object(self):
+        slots = []
+        code = None
+
+        self._consume_whitespaces()
+        while not self._check_token_type( [TokenTypes.OBJECT_BRACKET_CLOSE, TokenTypes.SEMICOLON] ):
+            #take slot name
+            if not self._check_token_type([TokenTypes.OPERATOR_SYMBOL, TokenTypes.KEYWORD_SYMBOL]):
+                raise SyntaxError()
+
+            _, _, slot_name = self._pull_token()
+
+            ## take arity
+            if not self._check_consume_token_value(["("]):
+                raise SyntaxError()
+
+            if not self._check_token_type([TokenTypes.INTEGER]):
+                raise SyntaxError()
+            _, position, arity = self._pull_token()
+
+            if not self._check_consume_token_value([")"]):
+                raise SyntaxError()
+
+            if arity < 0:
+                raise SyntaxError()
+
+            self._consume_whitespaces()
+
+            slot_content = NoneBox()
+
+            # if there is no comma, there is value to load
+            if not self._check_token_type([TokenTypes.COMMA]):
+                if not self._check_token_value(["="]):
+                    raise SyntaxError()
+
+                self._pull_token()
+                self._consume_whitespaces()
+
+                # read value (literal)
+                slot_content = self._parse_literal()
+
+                self._consume_whitespaces()
+                if not self._check_token_type([TokenTypes.COMMA]):
+                    raise SyntaxError()
+
+            # consume comma
+            self._pull_token()
+
+            slots.append((
+                CompleteSymbolBox(slot_name, arity),
+                (), #TODO: Implement slot kind handling
+                slot_content
+            ))
+
+            self._consume_whitespaces()
+
+        if self._check_token_type([TokenTypes.SEMICOLON]):
+            self._pull_token()
+
+            code = []
+            while not self._check_consume_token_type([TokenTypes.OBJECT_BRACKET_CLOSE]):
+                code.append(self.parse_expression())
+
+                # check and consume token
+                if not self._check_consume_token_type([TokenTypes.COMMA]):
+                    raise SyntaxError()
+                self._consume_whitespaces()
+
+        return ObjectBox(
+            slots=slots,
+            code=code
+        )
 
     def _parse_message_arguments(self):
         arguments = []
