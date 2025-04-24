@@ -5,6 +5,8 @@ from source.compiler.ast_nodes import CodeBox, LiteralNode, IntegerBox, StringBo
 from source.compiler.tokenization import TokenTypes, Tokenizer
 
 
+class ParserError(Exception):
+    pass
 
 class Parser:
     def __init__(self, tokens):
@@ -59,6 +61,15 @@ class Parser:
         return self._tokens[prev_index]
 
 
+    def _raise_ParserError(self, expected_token, found_token, position):
+        raise ParserError(
+            "At {}: expected {}, found {} instead".format(
+                position,
+                expected_token,
+                found_token
+            )
+        )
+
     def parse_root_code(self):
         expression_list = []
 
@@ -68,6 +79,15 @@ class Parser:
             expression_list.append(
                 self.parse_expression()
             )
+
+            if not self._check_consume_token_type([TokenTypes.COMMA]):
+                error_type, error_pos, error_value = self._peek_token()
+
+                self._raise_ParserError(
+                    expected_token=(TokenTypes.COMMA, ")"),
+                    found_token=(error_type, error_value),
+                    position=error_pos
+                )
 
             token_type, _, _ = self._peek_token()
 
@@ -92,7 +112,13 @@ class Parser:
 
             # check if there is closing bracket and if not, error
             if not self._check_consume_token_value( [")"] ):
-                raise SyntaxError()
+                error_type, error_pos, error_value = self._peek_token()
+
+                self._raise_ParserError(
+                    expected_token=(TokenTypes.BRACKET_CLOSE, ")"),
+                    found_token=(error_type, error_value),
+                    position=error_pos
+                )
 
         # handle normal expression (without parenthesis)
         else:
@@ -121,7 +147,11 @@ class Parser:
 
             # next token MUST BE a symbol of any kind
             if not token_type.value in (TokenTypes.OPERATOR_SYMBOL.value, TokenTypes.KEYWORD_SYMBOL.value):
-                raise SyntaxError()
+                self._raise_ParserError(
+                    expected_token=[TokenTypes.KEYWORD_SYMBOL, TokenTypes.OPERATOR_SYMBOL],
+                    found_token=(token_type, token_value),
+                    position=token_location
+                )
 
             selector = UnfinishedSymbolBox(token_value)
 
@@ -173,7 +203,12 @@ class Parser:
             return self._parse_object()
 
         #unknown literal
-        raise SyntaxError()
+        self._raise_ParserError(
+            expected_token=[TokenTypes.INTEGER, TokenTypes.STRING, TokenTypes.OBJECT_BRACKET_OPEN],
+            found_token=(token_type, token_value),
+            position=token_position
+        )
+        return None
 
     def _parse_object(self):
         slots = []
@@ -183,20 +218,46 @@ class Parser:
         while not self._check_token_type( [TokenTypes.OBJECT_BRACKET_CLOSE, TokenTypes.SEMICOLON] ):
             #take slot name
             if not self._check_token_type([TokenTypes.OPERATOR_SYMBOL, TokenTypes.KEYWORD_SYMBOL]):
-                raise SyntaxError()
+                error_type, error_pos, error_value = self._peek_token()
+
+                self._raise_ParserError(
+                    expected_token=[TokenTypes.OPERATOR_SYMBOL, TokenTypes.KEYWORD_SYMBOL],
+                    found_token=(error_type, error_value),
+                    position=error_pos
+                )
 
             _, _, slot_name = self._pull_token()
 
             ## take arity
             if not self._check_consume_token_value(["("]):
-                raise SyntaxError()
+                error_type, error_pos, error_value = self._peek_token()
+
+                self._raise_ParserError(
+                    expected_token=(TokenTypes.BRACKET_OPEN, "("),
+                    found_token=(error_type, error_value),
+                    position=error_pos
+                )
 
             if not self._check_token_type([TokenTypes.INTEGER]):
-                raise SyntaxError()
+                error_type, error_pos, error_value = self._peek_token()
+
+                self._raise_ParserError(
+                    expected_token=[TokenTypes.INTEGER],
+                    found_token=(error_type, error_value),
+                    position=error_pos
+                )
+
+
             _, position, arity = self._pull_token()
 
             if not self._check_consume_token_value([")"]):
-                raise SyntaxError()
+                error_type, error_pos, error_value = self._peek_token()
+
+                self._raise_ParserError(
+                    expected_token=(TokenTypes.BRACKET_CLOSE, ")"),
+                    found_token=(error_type, error_value),
+                    position=error_pos
+                )
 
             if arity < 0:
                 raise SyntaxError()
@@ -208,7 +269,13 @@ class Parser:
             # if there is no comma, there is value to load
             if not self._check_token_type([TokenTypes.COMMA]):
                 if not self._check_token_value(["="]):
-                    raise SyntaxError()
+                    error_type, error_pos, error_value = self._peek_token()
+
+                    self._raise_ParserError(
+                        expected_token=(TokenTypes.OPERATOR_SYMBOL, "="),
+                        found_token=(error_type, error_value),
+                        position=error_pos
+                    )
 
                 self._pull_token()
                 self._consume_whitespaces()
@@ -218,7 +285,13 @@ class Parser:
 
                 self._consume_whitespaces()
                 if not self._check_token_type([TokenTypes.COMMA]):
-                    raise SyntaxError()
+                    error_type, error_pos, error_value = self._peek_token()
+
+                    self._raise_ParserError(
+                        expected_token=(TokenTypes.COMMA, ","),
+                        found_token=(error_type, error_value),
+                        position=error_pos
+                    )
 
             # consume comma
             self._pull_token()
@@ -240,7 +313,14 @@ class Parser:
 
                 # check and consume token
                 if not self._check_consume_token_type([TokenTypes.COMMA]):
-                    raise SyntaxError()
+                    error_type, error_pos, error_value = self._peek_token()
+
+                    self._raise_ParserError(
+                        expected_token=(TokenTypes.COMMA, ","),
+                        found_token=(error_type, error_value),
+                        position=error_pos
+                    )
+
                 self._consume_whitespaces()
 
             code = CodeBox(code)
@@ -273,8 +353,13 @@ class Parser:
                 self._pull_token()
                 continue
 
-            raise SyntaxError()
+            error_type, error_pos, error_value = self._peek_token()
 
+            self._raise_ParserError(
+                expected_token=[TokenTypes.COMMA, TokenTypes.BRACKET_CLOSE],
+                found_token=(error_type, error_value),
+                position=error_pos
+            )
         return arguments
 
     def parse_code(self):
