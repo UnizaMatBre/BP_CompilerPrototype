@@ -6,7 +6,6 @@ from source.compiler.tokenization import TokenTypes, Tokenizer
 
 
 
-
 class Parser:
     def __init__(self, tokens):
         self._tokens = tokens
@@ -243,6 +242,8 @@ class Parser:
                 if not self._check_consume_token_type([TokenTypes.COMMA]):
                     raise SyntaxError()
                 self._consume_whitespaces()
+
+            code = CodeBox(code)
 
         return ObjectBox(
             slots=slots,
