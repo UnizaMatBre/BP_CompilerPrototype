@@ -18,6 +18,24 @@ class Parser:
         while self._peek_token()[0].value == TokenTypes.WHITESPACE.value:
             self._pull_token()
 
+    def _check_consume_token_value(self, token_values):
+        """Checks if token value matches and if yes, consumes it"""
+        result = self._check_token_value(token_values)
+
+        if result:
+            self._pull_token()
+
+        return result
+
+    def _check_consume_token_type(self, token_types):
+        """Checks if token type matches and if yes, consumes it"""
+        result = self._check_token_type(token_types)
+
+        if result:
+            self._pull_token()
+
+        return result
+
     def _check_token_type(self, wanted_token_types):
         """Checks if current token has type we want"""
         token_type, _, _ = self._peek_token()
@@ -65,9 +83,7 @@ class Parser:
 
 
         # handle parenthesis
-        if self._check_token_value( ["("] ):
-            # consume opening bracket
-            self._pull_token()
+        if self._check_consume_token_value(["("]):
 
             # parse expression
             main_term = self.parse_expression()
@@ -76,11 +92,8 @@ class Parser:
             self._consume_whitespaces()
 
             # check if there is closing bracket and if not, error
-            if not self._check_token_value( [")"] ):
+            if not self._check_consume_token_value( [")"] ):
                 raise SyntaxError()
-
-            # consume closing bracket
-            self._pull_token()
 
         # handle normal expression (without parenthesis)
         else:
@@ -104,11 +117,7 @@ class Parser:
         # handle possible sends
         self._consume_whitespaces()
 
-        while self._check_token_type([TokenTypes.COLON]):
-            # consume colon
-            self._pull_token()
-
-
+        while self._check_consume_token_type([TokenTypes.COLON]):
             token_type, token_location, token_value = self._pull_token()
 
             # next token MUST BE a symbol of any kind
@@ -176,20 +185,18 @@ class Parser:
                 _, _, slot_name = self._pull_token()
 
                 ## take arity
-                if not self._check_token_value(["("]):
+                if not self._check_consume_token_value(["("]):
                     raise SyntaxError()
-                self._pull_token()
 
                 if not self._check_token_type([TokenTypes.INTEGER]):
                     raise SyntaxError()
                 _, position, arity = self._pull_token()
 
-                if arity < 0:
+                if not self._check_consume_token_value([")"]):
                     raise SyntaxError()
 
-                if not self._check_token_value([")"]):
+                if arity < 0:
                     raise SyntaxError()
-                self._pull_token()
 
                 self._consume_whitespaces()
 
@@ -225,17 +232,13 @@ class Parser:
                 self._pull_token()
 
                 code = []
-                while not self._check_token_type([TokenTypes.OBJECT_BRACKET_CLOSE]):
+                while not self._check_consume_token_type([TokenTypes.OBJECT_BRACKET_CLOSE]):
                     code.append(self.parse_expression())
 
                     # check and consume token
-                    if not self._check_token_type([TokenTypes.COMMA]):
+                    if not self._check_consume_token_type([TokenTypes.COMMA]):
                         raise SyntaxError()
-                    self._pull_token()
-
                     self._consume_whitespaces()
-
-                self._pull_token()
 
             return ObjectBox(
                 slots=slots,
